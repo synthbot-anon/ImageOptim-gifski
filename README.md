@@ -9,7 +9,9 @@ Dependencies:
 
 After installing Rust, you will need to restart your shell/terminal for the environment variable changes to take effect.
 
-After installing the dependencies and restarting your shell/terminal:
+Due to limitations in [maturin](https://maturin.rs/), this package can only be built inside a virtualenv, though it can be installed anywhere once built.
+
+Installing outside of a virtualenv:
 ```
 # compile the wheel
 python3 -m virtualenv .venv
@@ -22,6 +24,12 @@ pip install gifski-*.whl
 rm -r .venv
 rm gifski-*.whl
 ```
+
+Installing inside a virtualenv:
+```
+pip install 'gifski@git+https://github.com/synthbot-anon/ImageOptim-gifski.git'
+```
+
 
 # Usage
 ```
