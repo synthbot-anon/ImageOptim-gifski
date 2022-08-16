@@ -5,9 +5,35 @@ use pyo3::{PyResult, exceptions};
 use pyo3::prelude::*;
 use crate::c_api::*;
 
+/// Gifski(width, height, /, quality=90, fast=False, repeat=0)
+///
+/// Example usage for creating a gif:
+///     frame_duration = 1 / 24 # 24 frames per second
+///     g = Gifski(width, height)
+///     g.set_file_output("output/path.gif")
+///
+///     timestamp = 0
+///     for frame in imgs:
+///         pixels = frame.convert('RGBA').tobytes()
+///         g.add_frame_rgba(pixels, timestamp)
+///         timestamp += frame_duration
+///
+///     g.finish()
+/// 
+/// Parameters
+/// ----------
+/// width : int
+///     positive integer, pixel width
+/// height : int
+///     positive integer, pixel height
+/// quality : int
+///     integer from 1 (best compression) to 100 (best quality)
+/// fast : bool
+///     faster encoder, lower quality
+/// repeat : int
+///     -1 for no looping, 0 for infinite looping, or n for looping n times
 #[pyclass]
 #[pyo3(name="Gifski")]
-#[pyo3(text_signature = "(width, height, /, quality=90, fast=False, repeat=-1)")]
 struct PyGifski {
     _handle: usize,
     width: u32,
@@ -17,6 +43,7 @@ struct PyGifski {
 
 #[pymethods]
 impl PyGifski {
+
     #[new]
     #[args(quality=90, fast=false, repeat=0)]
     unsafe fn new(width: u32, height: u32, quality: u8, fast: bool, repeat: i16) -> PyResult<Self> {
@@ -42,6 +69,23 @@ impl PyGifski {
         })
     }
 
+    /// Set the gif output destination to the given file path.
+    ///
+    /// This method should only be called once on a Gifski object.
+    ///
+    /// For a complete list of errors, see the GifskiError enum here:
+    ///     https://github.com/synthbot-anon/ImageOptim-gifski/blob/main/gifski.h
+    ///
+    /// Common errors:
+    ///     INVALID_STATE: the output might have already been set for this object.
+    ///     NOT_FOUND: the target directory doesn't exist.
+    ///     PERMISSION_DENIED: the target file is not writable.
+    ///     ALREADY_EXISTS: the target file already exists.
+    ///
+    /// Parameters
+    /// ----------
+    /// destination : str
+    ///     File path for writing the output gif.
     #[pyo3(text_signature = "(self, destination, /)")]
     unsafe fn set_file_output(&self, destination: String) -> PyResult<()> {
         let handle = self._handle as *const GifskiHandle;
@@ -59,6 +103,18 @@ impl PyGifski {
         Err(exceptions::PyException::new_err(success.to_string()))
     }
 
+    /// Specify a new gif frame using a pixel buffer.
+    ///
+    /// Example for getting a pixel buffer:
+    ///     from PIL import Image
+    ///     image = Image.open(image_path, mode='r')
+    ///     pixels = image.convert('RGBA').tobytes()
+    ///
+    /// Parameters
+    /// ----------
+    /// pixels : bytes
+    ///     RGBA pixel data, 4 bytes per pixel. The number of pixels must match the
+    ///     width and height provided when creating the Gifski object.
     #[pyo3(text_signature = "(self, pixels, timestamp, /)")]
     unsafe fn add_frame_rgba(&mut self, pixels: &[u8], timestamp: f64) -> PyResult<()> {
         let handle = self._handle as *const GifskiHandle;
@@ -79,6 +135,9 @@ impl PyGifski {
         return Ok(());
     }
 
+    /// Finalize the gif and write the output.
+    ///
+    /// No further methods should be called on this object after calling finalize().
     #[pyo3(text_signature = "(self, /)")]
     unsafe fn finish(&self) -> PyResult<()> {
         let handle = self._handle as *const GifskiHandle;
