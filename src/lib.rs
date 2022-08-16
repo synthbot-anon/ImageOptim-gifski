@@ -31,6 +31,7 @@ use crate::ordqueue::*;
 pub mod progress;
 use crate::progress::*;
 pub mod c_api;
+pub mod py_api;
 mod denoise;
 use crate::denoise::*;
 mod encoderust;

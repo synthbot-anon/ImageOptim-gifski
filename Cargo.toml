@@ -25,6 +25,7 @@ name = "tests"
 required-features = ["png"]
 
 [dependencies]
+pyo3 = { version = "0.16.5", features = ["extension-module"] }
 gifsicle = { version = "1.92.5", optional = true }
 clap = { version = "3.1.18", features = ["cargo"], optional = true }
 gif = "0.11.3"
@@ -63,6 +64,7 @@ video-static = ["video", "ffmpeg/build"]
 video-prebuilt-static = ["video", "ffmpeg/static"]
 
 [lib]
+name = "gifski"
 path = "src/lib.rs"
 crate-type = ["lib", "staticlib", "cdylib"]
 
