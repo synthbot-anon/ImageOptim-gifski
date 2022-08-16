@@ -137,7 +137,7 @@ impl PyGifski {
 
     /// Finalize the gif and write the output.
     ///
-    /// No further methods should be called on this object after calling finalize().
+    /// No further methods should be called on this object after calling finish().
     #[pyo3(text_signature = "(self, /)")]
     unsafe fn finish(&self) -> PyResult<()> {
         let handle = self._handle as *const GifskiHandle;
