@@ -121,7 +121,7 @@ impl PyGifski {
         if pixels.len() % 4 != 0 {
             return Err(exceptions::PyValueError::new_err("pixels must be in RGBA format, 4 bytes per pixel"));
         }
-        if self.width * self.height != pixels.len() as u32 {
+        if self.width * self.height * 4 != pixels.len() as u32 {
             return Err(exceptions::PyValueError::new_err("pixel width*height doesn't match the width*height used during construction"));
         }
 
