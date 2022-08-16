@@ -124,6 +124,9 @@ impl PyGifski {
         if self.width * self.height * 4 != pixels.len() as u32 {
             return Err(exceptions::PyValueError::new_err("pixel width*height doesn't match the width*height used during construction"));
         }
+        if self.frame_count > 0 && timestamp == 0.0 {
+            return Err(exceptions::PyValueError::new_err("only the first frame's timestamp is allowed to be 0"));
+        }
 
         let buffer = mem::transmute::<*const u8, *const RGBA8>(pixels.as_ptr());
         let success = gifski_add_frame_rgba(handle, self.frame_count, self.width, self.height, buffer, timestamp);
